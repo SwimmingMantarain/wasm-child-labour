@@ -82,7 +82,7 @@ impl TileGrid {
         Self {
             tiles: Vec::new(),
             pos: Vec2::ZERO,
-            tile_size: 24.0,
+            tile_size: screen_width() / 20.0,
         }
     }
 
@@ -148,7 +148,16 @@ impl TileGrid {
     }
 }
 
-#[macroquad::main("Platformer")]
+fn window_conf() -> Conf {
+    Conf {
+        window_title: "Child Labour: Epilepsy Edition HD".to_owned(),
+        fullscreen: true,
+        window_resizable: false,
+        ..Default::default()
+    }
+}
+
+#[macroquad::main(window_conf)]
 async fn main() {
     let mut player = Player::new();
     let mut tile_grid = TileGrid::new();
@@ -170,13 +179,12 @@ async fn main() {
             }
         }
 
+        tile_grid.tile_size = screen_width() / 20.0;
         tile_grid.draw();
 
         player.jump_requested = jump_requested;
         player.update(dt, touch_x);
         player.draw();
-
-        draw_text("Use arrow keys or touch sides to move, space or tap to jump", 10.0, 20.0, 20.0, BLACK);
 
         next_frame().await
     }
