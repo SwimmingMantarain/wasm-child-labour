@@ -134,7 +134,7 @@ impl TileGrid {
         tiles.push(row);
 
         // Everything after
-        for _ in 0..23 {
+        for _ in 0..14 {
             let mut row = Vec::new();
 
             // Left wall
@@ -209,7 +209,7 @@ impl TileGrid {
     }
 
     fn draw(&self, textures: &Textures) {
-        let mut pos = Vec2::ZERO;
+        let mut pos = self.pos;
         for row in &self.tiles {
             for tile in row {
                 // Choose randomly between a few different colors
@@ -220,7 +220,7 @@ impl TileGrid {
                     TileType::Empty => color = Some(DARKBROWN),
                     TileType::Dirt => texture = Some(&textures.dirt),
                     TileType::Bedrock => texture = Some(&textures.bedrock),
-                    TileType::Chest => color = Some(YELLOW),
+                    TileType::Chest => texture = Some(&textures.chest),
                     TileType::IronOre => color = Some(LIGHTGRAY),
                     TileType::GoldOre => color = Some(GOLD),
                     TileType::DiamondOre => color = Some(BLUE),
@@ -239,7 +239,7 @@ impl TileGrid {
                         }
                         
                     }
-                    draw_rectangle_lines(pos.x, pos.y, self.tile_size, self.tile_size, 1., BLACK);
+                    //draw_rectangle_lines(pos.x, pos.y, self.tile_size, self.tile_size, 2.5, BLACK);
                     pos.x += self.tile_size;
                 }
             }
@@ -252,7 +252,7 @@ impl TileGrid {
 struct Textures {
     dirt: Texture2D,
     bedrock: Texture2D,
-    //chest: Texture2D,
+    chest: Texture2D,
     //iron_ore: Texture2D,
     //gold_ore: Texture2D,
     //diamond_ore: Texture2D,
@@ -274,7 +274,7 @@ async fn main() {
     let textures = Textures {
         dirt: load_texture("assets/dirt.png").await.unwrap(),
         bedrock: load_texture("assets/bedrock.png").await.unwrap(),
-        //chest: load_texture("assets/chest.png").await.unwrap(),
+        chest: load_texture("assets/chest.png").await.unwrap(),
         //iron_ore: load_texture("assets/iron_ore.png").await.unwrap(),
         //gold_ore: load_texture("assets/gold_ore.png").await.unwrap(),
         //diamond_ore: load_texture("assets/diamond_ore.png").await.unwrap(),
@@ -300,6 +300,13 @@ async fn main() {
                 jump_requested = true;
             }
         }
+
+        if is_key_down(KeyCode::Up) {
+            tile_grid.pos.y += 10.;
+        };
+        if is_key_down(KeyCode::Down) {
+            tile_grid.pos.y -= 10.;
+        };
 
         tile_grid.tile_size = screen_width() / 20.0;
         tile_grid.draw(&textures);
