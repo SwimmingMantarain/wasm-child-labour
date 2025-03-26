@@ -68,7 +68,6 @@ struct Tile {
     typ: TileType,
     hidden: bool,
     is_unbreakable: bool,
-    cp_pos: Option<Vec2>,
 }
 
 struct TileGrid {
@@ -100,45 +99,147 @@ impl TileGrid {
         let mut row = Vec::new();
         for _ in 0..24 {
             row.push(Tile {
-                typ: TileType::Dirt,
+                typ: TileType::Bedrock,
                 hidden: false,
                 is_unbreakable: true,
-                cp_pos: None,
             });
         }
         tiles.push(row);
 
+        // Left wall
+        let mut row = Vec::new();
+
+        row.push(Tile {
+            typ: TileType::Bedrock,
+            hidden: false,
+            is_unbreakable: true,
+        });
+
+        // Starting Hallway
+        for _ in 0..18 {
+            row.push(Tile {
+                typ: TileType::Empty,
+                hidden: false,
+                is_unbreakable: true,
+            });
+        }
+
+        // Right wall
+        row.push(Tile {
+            typ: TileType::Bedrock,
+            hidden: false,
+            is_unbreakable: true,
+        });
+
+        tiles.push(row);
+
+        // Everything after
         for _ in 0..23 {
             let mut row = Vec::new();
-            for _ in 0..24 {
-                row.push(Tile {
-                    typ: TileType::Dirt,
-                    hidden: false,
-                    is_unbreakable: true,
-                    cp_pos: None,
-                });
+
+            // Left wall
+            row.push(Tile {
+                typ: TileType::Bedrock,
+                hidden: false,
+                is_unbreakable: true,
+            });
+
+            // Rest of the wall
+            for _ in 0..18 {
+                let random_val = gen_range(0, 100);
+                let tile: Tile;
+                match random_val {
+                    // Dirt
+                    0..=69 => tile = Tile {
+                        typ: TileType::Dirt,
+                        hidden: false,
+                        is_unbreakable: false,
+                    },
+                    // Coal Ore
+                    70..=83 => tile = Tile {
+                        typ: TileType::CoalOre,
+                        hidden: false,
+                        is_unbreakable: false,
+                    },
+                    // Iron Ore
+                    84..=94 => tile = Tile {
+                        typ: TileType::IronOre,
+                        hidden: false,
+                        is_unbreakable: false,
+                    },
+                    // Gold Ore
+                    95..=98 => tile = Tile {
+                        typ: TileType::GoldOre,
+                        hidden: false,
+                        is_unbreakable: false,
+                    },
+                    // Diamond Ore
+                    99 => tile = Tile {
+                        typ: TileType::DiamondOre,
+                        hidden: false,
+                        is_unbreakable: false,
+                    },
+                    // Chest
+                    100 => tile = Tile {
+                        typ: TileType::Chest,
+                        hidden: false,
+                        is_unbreakable: false,
+                    },
+                    // Bedrock - never appears in normal generation (kept as failsafe)
+                    _ => tile = Tile {
+                        typ: TileType::Bedrock,
+                        hidden: false,
+                        is_unbreakable: false,
+                    },
+                }
+                row.push(tile);
             }
+
+            // Right wall
+            row.push(Tile {
+                typ: TileType::Bedrock,
+                hidden: false,
+                is_unbreakable: true,
+            });
+
             tiles.push(row);
         }
 
         tiles
     }
 
-    fn draw(&self) {
+    fn draw(&self, textures: &Textures) {
         let mut pos = Vec2::ZERO;
         for row in &self.tiles {
             for tile in row {
                 // Choose randomly between a few different colors
-                let index = gen_range(0, 3);
-                let color = match index {
-                    0 => RED,
-                    1 => GREEN,
-                    2 => BLUE,
-                    3 => YELLOW,
-                    _ => BLACK,
-                };
+                let mut color = None;
+                let mut texture = None;
+
+                match tile.typ {
+                    TileType::Empty => color = Some(DARKBROWN),
+                    TileType::Dirt => texture = Some(&textures.dirt),
+                    TileType::Bedrock => texture = Some(&textures.bedrock),
+                    TileType::Chest => color = Some(YELLOW),
+                    TileType::IronOre => color = Some(LIGHTGRAY),
+                    TileType::GoldOre => color = Some(GOLD),
+                    TileType::DiamondOre => color = Some(BLUE),
+                    TileType::CoalOre => color = Some(BLACK),
+                }
+
                 if !tile.hidden {
-                    draw_rectangle(pos.x, pos.y, self.tile_size, self.tile_size, color);
+                    if let Some(color) = color {
+                        draw_rectangle(pos.x, pos.y, self.tile_size, self.tile_size, color);
+                    } else {
+                        if let Some(texture) = texture {
+                            draw_texture_ex(texture, pos.x, pos.y, WHITE, DrawTextureParams {
+                                dest_size: Some(Vec2::new(self.tile_size, self.tile_size)),
+                                ..Default::default()
+                            });
+                        }
+                        
+                    }
+                    draw_rectangle_lines(pos.x, pos.y, self.tile_size, self.tile_size, 1., BLACK);
                     pos.x += self.tile_size;
                 }
             }
@@ -148,9 +249,19 @@ impl TileGrid {
     }
 }
 
+struct Textures {
+    dirt: Texture2D,
+    bedrock: Texture2D,
+    //chest: Texture2D,
+    //iron_ore: Texture2D,
+    //gold_ore: Texture2D,
+    //diamond_ore: Texture2D,
+    //coal_ore: Texture2D,
+}
+
 fn window_conf() -> Conf {
     Conf {
-        window_title: "Child Labour: Epilepsy Edition HD".to_owned(),
+        window_title: "Child Labour: Epilepsy Edition FHD".to_owned(),
         fullscreen: true,
         window_resizable: false,
         ..Default::default()
@@ -159,6 +270,17 @@ fn window_conf() -> Conf {
 
 #[macroquad::main(window_conf)]
 async fn main() {
+    // Load textures
+    let textures = Textures {
+        dirt: load_texture("assets/dirt.png").await.unwrap(),
+        bedrock: load_texture("assets/bedrock.png").await.unwrap(),
+        //chest: load_texture("assets/chest.png").await.unwrap(),
+        //iron_ore: load_texture("assets/iron_ore.png").await.unwrap(),
+        //gold_ore: load_texture("assets/gold_ore.png").await.unwrap(),
+        //diamond_ore: load_texture("assets/diamond_ore.png").await.unwrap(),
+        //coal_ore: load_texture("assets/coal_ore.png").await.unwrap(),
+    };
+
     let mut player = Player::new();
     let mut tile_grid = TileGrid::new();
     tile_grid.init();
@@ -180,7 +302,7 @@ async fn main() {
         }
 
         tile_grid.tile_size = screen_width() / 20.0;
-        tile_grid.draw();
+        tile_grid.draw(&textures);
 
         player.jump_requested = jump_requested;
         player.update(dt, touch_x);
