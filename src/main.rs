@@ -208,6 +208,17 @@ impl TileGrid {
         tiles
     }
 
+    fn move_up(&mut self) {
+        self.pos.y += self.tile_size / 10.;
+        if self.pos.y >= 0.0 {
+            self.pos.y = 0.0;
+        }
+    }
+
+    fn move_down(&mut self) {
+        self.pos.y -= self.tile_size / 10.;
+    }
+
     fn draw(&self, textures: &Textures) {
         let mut pos = self.pos;
         for row in &self.tiles {
@@ -217,14 +228,14 @@ impl TileGrid {
                 let mut texture = None;
 
                 match tile.typ {
-                    TileType::Empty => color = Some(DARKBROWN),
+                    TileType::Empty => texture = Some(&textures.empty_dirt),
                     TileType::Dirt => texture = Some(&textures.dirt),
                     TileType::Bedrock => texture = Some(&textures.bedrock),
                     TileType::Chest => texture = Some(&textures.chest),
-                    TileType::IronOre => color = Some(LIGHTGRAY),
-                    TileType::GoldOre => color = Some(GOLD),
-                    TileType::DiamondOre => color = Some(BLUE),
-                    TileType::CoalOre => color = Some(BLACK),
+                    TileType::IronOre => texture = Some(&textures.iron_ore),
+                    TileType::GoldOre => texture = Some(&textures.gold_ore),
+                    TileType::DiamondOre => texture = Some(&textures.diamond_ore),
+                    TileType::CoalOre => texture = Some(&textures.coal_ore),
                 }
 
                 if !tile.hidden {
@@ -239,7 +250,7 @@ impl TileGrid {
                         }
                         
                     }
-                    //draw_rectangle_lines(pos.x, pos.y, self.tile_size, self.tile_size, 2.5, BLACK);
+                    draw_rectangle_lines(pos.x, pos.y, self.tile_size, self.tile_size, 2.5, BLACK);
                     pos.x += self.tile_size;
                 }
             }
@@ -250,13 +261,14 @@ impl TileGrid {
 }
 
 struct Textures {
+    empty_dirt: Texture2D,
     dirt: Texture2D,
     bedrock: Texture2D,
     chest: Texture2D,
-    //iron_ore: Texture2D,
-    //gold_ore: Texture2D,
-    //diamond_ore: Texture2D,
-    //coal_ore: Texture2D,
+    iron_ore: Texture2D,
+    gold_ore: Texture2D,
+    diamond_ore: Texture2D,
+    coal_ore: Texture2D,
 }
 
 fn window_conf() -> Conf {
@@ -272,13 +284,14 @@ fn window_conf() -> Conf {
 async fn main() {
     // Load textures
     let textures = Textures {
+        empty_dirt: load_texture("assets/dirt_empty.png").await.unwrap(),
         dirt: load_texture("assets/dirt.png").await.unwrap(),
         bedrock: load_texture("assets/bedrock.png").await.unwrap(),
         chest: load_texture("assets/chest.png").await.unwrap(),
-        //iron_ore: load_texture("assets/iron_ore.png").await.unwrap(),
-        //gold_ore: load_texture("assets/gold_ore.png").await.unwrap(),
-        //diamond_ore: load_texture("assets/diamond_ore.png").await.unwrap(),
-        //coal_ore: load_texture("assets/coal_ore.png").await.unwrap(),
+        iron_ore: load_texture("assets/iron.png").await.unwrap(),
+        gold_ore: load_texture("assets/gold.png").await.unwrap(),
+        diamond_ore: load_texture("assets/diamond.png").await.unwrap(),
+        coal_ore: load_texture("assets/coal.png").await.unwrap(),
     };
 
     let mut player = Player::new();
@@ -302,10 +315,10 @@ async fn main() {
         }
 
         if is_key_down(KeyCode::Up) {
-            tile_grid.pos.y += 10.;
+            tile_grid.move_up();
         };
         if is_key_down(KeyCode::Down) {
-            tile_grid.pos.y -= 10.;
+            tile_grid.move_down();
         };
 
         tile_grid.tile_size = screen_width() / 20.0;
