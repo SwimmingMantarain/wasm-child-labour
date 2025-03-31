@@ -18,8 +18,10 @@ fn window_conf() -> Conf {
 async fn main() {
 
     let mut context = context::ContextWindow::new();
-    let mut menu = menus::Menus::new();
-    menu.set_style();
+    let mut game_menus = menus::Menus::new();
+    game_menus.set_style();
+
+    
 
     loop {
         clear_background(BLACK);

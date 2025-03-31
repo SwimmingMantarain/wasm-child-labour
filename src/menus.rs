@@ -3,24 +3,26 @@ use std::str::FromStr;
 use macroquad::prelude::*;
 use macroquad::ui::{hash, root_ui, Skin};
 
-use crate::context::ContextType;
-
-struct Button {
-    // The pos variable is se more like padding than an actual position
-    pos: Vec2,
-    text: String,
-}
+use crate::context::{ContextType, ContextWindow};
 
 pub struct Menu {
-    buttons: Vec<Button>,
+    menu_buttons: Vec<&'static str>,
     context: ContextType
 }
 
 impl Menu {
     fn default() -> Menu {
         Menu {
-            buttons: vec![Button { pos: vec2(0., 0.), text: String::from_str("Template").expect("String stuff") }],
+            menu_buttons: vec!["Template"],
             context: ContextType::MainMenu
+        }
+    }
+
+    fn update(&self) {
+        for menu_button in self.menu_buttons.to_owned() {
+            if root_ui().button(None, menu_button) {
+                println!("Button Clicked")
+            }
         }
     }
 }
@@ -68,7 +70,9 @@ impl Menus {
         root_ui().push_skin(&ui_skin);
     }
 
-    pub fn update(&mut self) {
-        // TODO: Properly implement button positioning and rendering
+    pub fn update(&mut self, context: ContextWindow) {
+        if context.curr_context == ContextType::MainMenu {
+            self.MainMenu.update();
+        }
     }
 }
