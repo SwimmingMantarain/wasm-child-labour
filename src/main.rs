@@ -1,4 +1,9 @@
+use context::ContextType;
 use macroquad::prelude::*;
+use macroquad::ui::{hash, root_ui, Skin};
+
+pub mod menus;
+pub mod context;
 
 fn window_conf() -> Conf {
     Conf {
@@ -12,8 +17,16 @@ fn window_conf() -> Conf {
 #[macroquad::main(window_conf)]
 async fn main() {
 
+    let mut context = context::ContextWindow::new();
+    let mut menu = menus::Menus::new();
+    menu.set_style();
+
     loop {
         clear_background(BLACK);
+
+        if context.curr_context == ContextType::MainMenu {
+        }
+ 
 
         next_frame().await
     }
