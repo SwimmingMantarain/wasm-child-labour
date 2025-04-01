@@ -1,5 +1,5 @@
 // Helper struct for managing window locations (e.g., settings menu, credits, play, pause, etc.)
-#[derive(Copy, Clone, PartialEq, Eq)]
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub enum ContextType {
     MainMenu,
     SettingsMenu,
@@ -8,6 +8,7 @@ pub enum ContextType {
     GamePlay
 }
 
+#[derive(Clone, Copy)]
 pub struct ContextWindow {
     pub curr_context: ContextType,
     pub prev_context: ContextType, // Only to use if curr_context used to be GamePlay

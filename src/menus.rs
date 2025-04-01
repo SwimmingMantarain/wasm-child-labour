@@ -1,48 +1,85 @@
-use std::str::FromStr;
+use std::any::Any;
 
 use macroquad::prelude::*;
 use macroquad::ui::{hash, root_ui, Skin};
 
 use crate::context::{ContextType, ContextWindow};
+use crate::helper_funcs::*;
 
-pub struct Menu {
-    menu_buttons: Vec<&'static str>,
+#[derive(Clone)]
+struct GameButton {
+    text: &'static str,
+    pos: Vec2,
+    action: FuncTyp,
+    context_action: Option<ContextType>
+}
+
+impl GameButton {
+    fn default() -> GameButton {
+        GameButton { text: "Template", pos: vec2(0., 0.), action: FuncTyp::Simple(empty), context_action: None}
+    }
+
+    fn new(text: &'static str, pos: Vec2, action: FuncTyp, context_action: Option<ContextType>) -> GameButton {
+        GameButton { text: text, pos: pos, action: action, context_action: context_action}
+    }
+}
+
+#[derive(Clone)]
+struct Menu {
+    menu_buttons: Vec<GameButton>,
     context: ContextType
 }
 
 impl Menu {
     fn default() -> Menu {
         Menu {
-            menu_buttons: vec!["Template"],
+            menu_buttons: vec![GameButton::default()],
             context: ContextType::MainMenu
         }
     }
 
-    fn update(&self) {
-        for menu_button in self.menu_buttons.to_owned() {
-            if root_ui().button(None, menu_button) {
-                println!("Button Clicked")
+    fn update(&self, context: Option<ContextWindow>) {
+        for menu_button in self.menu_buttons.clone() {
+            if root_ui().button(None, menu_button.text) {
+                match menu_button.action {
+                    FuncTyp::Simple(func) => { func() },
+                    FuncTyp::Context(func) => { func(context.expect("Where context window?"), menu_button.context_action.expect("Where context type?")); },
+                    // _ => { println!("How did you get here bro?"); }
+                }
             }
         }
     }
 }
 
 pub struct Menus {
-    MainMenu: Menu,
-    SettingsMenu: Menu,
-    CreditsMenu: Menu,
-    PauseMenu: Menu,
-    Gameplay: Menu
+    main_menu: Menu,
+    settings_menu: Menu,
+    credits_menu: Menu,
+    pause_menu: Menu,
+    gameplay: Menu
 }
 
 impl Menus {
     pub fn new() -> Menus {
         Menus {
-            MainMenu: Menu::default(),
-            SettingsMenu: Menu::default(),
-            CreditsMenu: Menu::default(),
-            PauseMenu: Menu::default(),
-            Gameplay: Menu::default(),
+            main_menu: Menu {
+                menu_buttons: vec![
+                    GameButton::new("Play", vec2(0., 0.), FuncTyp::Simple(empty), None),
+                    GameButton::new("Settings", vec2(0., 50.), FuncTyp::Context(change_context), Some(ContextType::SettingsMenu)),
+                    GameButton::new("Credits", vec2(0., 100.), FuncTyp::Simple(empty), None),
+                    GameButton::new("Quit", vec2(0., 150.), FuncTyp::Simple(quit), None)
+                ],
+                context: ContextType::MainMenu
+            },
+            settings_menu: Menu {
+                menu_buttons: vec![
+                    GameButton::new("Back", vec2(0., 0.), FuncTyp::Simple(empty), None)
+                ],
+                context: ContextType::SettingsMenu
+            },
+            credits_menu: Menu::default(),
+            pause_menu: Menu::default(),
+            gameplay: Menu::default(),
         }
     }
 
@@ -50,7 +87,7 @@ impl Menus {
         let button_style = root_ui()
             .style_builder()
             .color(Color::from_rgba(0, 0, 0, 0))
-            .color_clicked(Color::from_rgba(255, 255, 255, 100))
+            .color_clicked(Color::from_rgba(0, 255, 0, 128))
             .text_color(WHITE)
             .font_size(40)
             .build();
@@ -70,9 +107,13 @@ impl Menus {
         root_ui().push_skin(&ui_skin);
     }
 
-    pub fn update(&mut self, context: ContextWindow) {
+    pub fn update(&mut self, context: ContextWindow) -> ContextWindow {
         if context.curr_context == ContextType::MainMenu {
-            self.MainMenu.update();
+            self.main_menu.update(Some(context));
+        } else if context.curr_context == ContextType::SettingsMenu {
+            self.settings_menu.update(Some(context));
         }
+
+        return context
     }
 }

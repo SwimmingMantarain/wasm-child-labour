@@ -4,6 +4,7 @@ use macroquad::ui::{hash, root_ui, Skin};
 
 pub mod menus;
 pub mod context;
+pub mod helper_funcs;
 
 fn window_conf() -> Conf {
     Conf {
@@ -26,9 +27,9 @@ async fn main() {
     loop {
         clear_background(BLACK);
 
-        if context.curr_context == ContextType::MainMenu {
-        }
- 
+        context = game_menus.update(context);
+
+        println!("Current context: {:?}", context.curr_context);
 
         next_frame().await
     }
