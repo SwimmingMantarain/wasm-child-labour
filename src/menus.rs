@@ -43,7 +43,7 @@ impl Menu {
         let mut updated_context = context;
         for menu_button in self.menu_buttons.clone() {
             // Alignment black magic
-            let button_text = get_text_center(menu_button.text, font, 40, 1., 0.);
+            let button_text = get_text_center(menu_button.text, font, 80, 1., 0.);
             let button_adjusted_pos = vec2(
                 screen_width() / 2. - button_text.x,
                 screen_height() / 2. - button_text.y - menu_button.pos.y
@@ -114,20 +114,16 @@ impl Menus {
             .style_builder()
             .with_font(font).unwrap()
             .color(Color::from_rgba(0, 0, 0, 0))
-            .color_clicked(Color::from_rgba(0, 255, 0, 128))
+            .color_hovered(Color::from_rgba(0, 0, 0, 0))
+            .color_clicked(Color::from_rgba(0, 0, 0, 0))
+            .text_color_hovered(Color::from_rgba(255, 0, 0, 255))
+            .text_color_clicked(Color::from_rgba(255, 0, 0, 255))
             .text_color(WHITE)
-            .font_size(40)
-            .build();
-
-        let label_style = root_ui()
-            .style_builder()
-            .text_color(WHITE)
-            .font_size(32)
+            .font_size(80)
             .build();
 
         let ui_skin = Skin {
             button_style,
-            label_style,
             ..root_ui().default_skin()
         };
 
