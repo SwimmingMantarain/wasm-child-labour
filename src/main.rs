@@ -17,17 +17,21 @@ fn window_conf() -> Conf {
 
 #[macroquad::main(window_conf)]
 async fn main() {
+    // Load stuff
+    let menu_font = load_ttf_font("assets/fonts/AmazDooMLeft2.ttf").await.unwrap();
 
     let mut context = context::ContextWindow::new();
     let mut game_menus = menus::Menus::new();
-    game_menus.set_style();
+    game_menus.set_style(&menu_font);
 
     
 
     loop {
         clear_background(BLACK);
 
-        context = game_menus.update(context);
+        let font = menu_font.clone();
+
+        context = game_menus.update(context, Some(&font));
 
         next_frame().await
     }
