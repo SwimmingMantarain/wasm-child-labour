@@ -4,7 +4,7 @@ use macroquad::prelude::*;
 use macroquad::ui::{hash, root_ui, Skin};
 
 use crate::context::{ContextType, ContextWindow};
-use crate::helper_funcs::*;
+use crate::utilities::*;
 
 #[derive(Clone)]
 struct GameButton {
@@ -38,16 +38,18 @@ impl Menu {
         }
     }
 
-    fn update(&self, context: Option<ContextWindow>) {
+    fn update(&self, context: Option<ContextWindow>) -> ContextWindow {
+        let mut updated_context = context;
         for menu_button in self.menu_buttons.clone() {
             if root_ui().button(None, menu_button.text) {
                 match menu_button.action {
                     FuncTyp::Simple(func) => { func() },
-                    FuncTyp::Context(func) => { func(context.expect("Where context window?"), menu_button.context_action.expect("Where context type?")); },
+                    FuncTyp::Context(func) => { updated_context = Some(func(context.expect("Where context window?"), menu_button.context_action.expect("Where context type?"))); },
                     // _ => { println!("How did you get here bro?"); }
                 }
             }
         }
+        updated_context.expect("Where is updated context window?")
     }
 }
 
@@ -108,12 +110,13 @@ impl Menus {
     }
 
     pub fn update(&mut self, context: ContextWindow) -> ContextWindow {
+        let mut updated_context = context;
         if context.curr_context == ContextType::MainMenu {
-            self.main_menu.update(Some(context));
+            updated_context = self.main_menu.update(Some(context));
         } else if context.curr_context == ContextType::SettingsMenu {
-            self.settings_menu.update(Some(context));
+            updated_context = self.settings_menu.update(Some(context));
         }
 
-        return context
+        return updated_context
     }
 }
