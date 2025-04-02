@@ -26,4 +26,11 @@ impl ContextWindow {
         self.prev_context = self.curr_context;
         self.curr_context = new_context;
     }
+
+    pub fn revert_context(&mut self) {
+        let curr = self.curr_context;
+        self.curr_context = self.prev_context;
+        self.prev_context = curr;
+
+    }
 }

@@ -9,7 +9,8 @@ pub fn quit() {
 #[derive(Clone, Copy)]
 pub enum FuncTyp {
     Simple(fn ()),
-    Context(fn (ContextWindow, ContextType) -> ContextWindow)
+    Context(fn (ContextWindow, ContextType) -> ContextWindow),
+    RevContext(fn (ContextWindow) -> ContextWindow)
 }
 
 // Empty function for black magic purposes
@@ -20,6 +21,15 @@ pub fn change_context(context: ContextWindow, new_context: ContextType) -> Conte
     let mut new_ctx_win = context;
 
     new_ctx_win.update_context(new_context);
+
+    new_ctx_win
+}
+
+// Helper function for more black magic purposes
+pub fn revert_context(context: ContextWindow) -> ContextWindow {
+    let mut new_ctx_win = context;
+
+    new_ctx_win.revert_context();
 
     new_ctx_win
 }

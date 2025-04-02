@@ -1,4 +1,3 @@
-use std::any::Any;
 
 use macroquad::prelude::*;
 use macroquad::ui::{hash, root_ui, Skin};
@@ -45,6 +44,7 @@ impl Menu {
                 match menu_button.action {
                     FuncTyp::Simple(func) => { func() },
                     FuncTyp::Context(func) => { updated_context = Some(func(context.expect("Where context window?"), menu_button.context_action.expect("Where context type?"))); },
+                    FuncTyp::RevContext(func) => {updated_context = Some(func(context.expect("Where context window?")))}
                     // _ => { println!("How did you get here bro?"); }
                 }
             }
@@ -66,22 +66,37 @@ impl Menus {
         Menus {
             main_menu: Menu {
                 menu_buttons: vec![
-                    GameButton::new("Play", vec2(0., 0.), FuncTyp::Simple(empty), None),
+                    GameButton::new("Play", vec2(0., 0.), FuncTyp::Context(change_context), Some(ContextType::GamePlay)),
                     GameButton::new("Settings", vec2(0., 50.), FuncTyp::Context(change_context), Some(ContextType::SettingsMenu)),
-                    GameButton::new("Credits", vec2(0., 100.), FuncTyp::Simple(empty), None),
+                    GameButton::new("Credits", vec2(0., 100.), FuncTyp::Context(change_context), Some(ContextType::CreditsMenu)),
                     GameButton::new("Quit", vec2(0., 150.), FuncTyp::Simple(quit), None)
                 ],
                 context: ContextType::MainMenu
             },
             settings_menu: Menu {
                 menu_buttons: vec![
-                    GameButton::new("Back", vec2(0., 0.), FuncTyp::Simple(empty), None)
+                    GameButton::new("Back", vec2(0., 0.), FuncTyp::RevContext(revert_context), None)
                 ],
                 context: ContextType::SettingsMenu
             },
-            credits_menu: Menu::default(),
-            pause_menu: Menu::default(),
-            gameplay: Menu::default(),
+            credits_menu: Menu {
+                menu_buttons: vec![
+                    GameButton::new("Back", vec2(0., 0.), FuncTyp::RevContext(revert_context), None)
+                ],
+                context: ContextType::CreditsMenu,
+            },
+            pause_menu: Menu {
+                menu_buttons: vec![
+                    GameButton::new("Back", vec2(0., 0.), FuncTyp::RevContext(revert_context), None)
+                ],
+                context: ContextType::PauseMenu,
+            },
+            gameplay: Menu {
+                menu_buttons: vec![
+                    GameButton::new("Back", vec2(0., 0.), FuncTyp::RevContext(revert_context), None)
+                ],
+                context: ContextType::GamePlay,
+            },
         }
     }
 
@@ -115,6 +130,12 @@ impl Menus {
             updated_context = self.main_menu.update(Some(context));
         } else if context.curr_context == ContextType::SettingsMenu {
             updated_context = self.settings_menu.update(Some(context));
+        } else if context.curr_context == ContextType::CreditsMenu {
+            updated_context = self.credits_menu.update(Some(context))
+        } else if context.curr_context == ContextType::PauseMenu {
+            updated_context = self.pause_menu.update(Some(context))
+        } else if context.curr_context == ContextType::GamePlay {
+            updated_context = self.gameplay.update(Some(context))
         }
 
         return updated_context
