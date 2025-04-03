@@ -10,7 +10,7 @@ fn window_conf() -> Conf {
     Conf {
         window_title: "Child Labour: Epilepsy Edition FHD".to_owned(),
         fullscreen: true,
-        window_resizable: false,
+        window_resizable: true,
         ..Default::default()
     }
 }
@@ -18,7 +18,9 @@ fn window_conf() -> Conf {
 #[macroquad::main(window_conf)]
 async fn main() {
     // Load stuff
-    let menu_font = load_ttf_font("assets/fonts/AmazDooMLeft2.ttf").await.unwrap();
+    let menu_font = load_ttf_font("assets/fonts/AmazDooM/AmazDooMLeft2.ttf").await.unwrap();
+    //let menu_font = load_ttf_font("assets/fonts/XXII-Scratch/XXII-Scratch.ttf").await.unwrap();
+    //let menu_font = load_ttf_font("assets/fonts/Black-Mustang/Black-Mustang.ttf").await.unwrap();
 
     let mut context = context::ContextWindow::new();
     let mut game_menus = menus::Menus::new();
@@ -29,9 +31,7 @@ async fn main() {
     loop {
         clear_background(BLACK);
 
-        let font = menu_font.clone();
-
-        context = game_menus.update(context, Some(&font));
+        context = game_menus.update(context, Some(&menu_font));
 
         next_frame().await
     }
