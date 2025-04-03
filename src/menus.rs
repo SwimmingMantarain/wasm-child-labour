@@ -43,10 +43,11 @@ impl Menu {
         let mut updated_context = context;
         for menu_button in self.menu_buttons.clone() {
             // Alignment black magic
-            let button_text = get_text_center(menu_button.text, font, 45, 1., 0.);
+            
+            let button_center = get_text_center(menu_button.text, font, 45, 1., 0.);
             let button_adjusted_pos = vec2(
-                screen_width() / 2. - button_text.x,
-                screen_height() / 2. - button_text.y - menu_button.pos.y
+                screen_width() / 2. - button_center.x,
+                screen_height() / 2. - button_center.y + menu_button.pos.y
             );
 
             if widgets::Button::new(menu_button.text)/*.size()*/.position(button_adjusted_pos).ui(&mut root_ui()) {
@@ -75,10 +76,10 @@ impl Menus {
         Menus {
             main_menu: Menu {
                 menu_buttons: vec![
-                    GameButton::new("Play", vec2(0., 150.), FuncTyp::Context(change_context), Some(ContextType::GamePlay)),
-                    GameButton::new("Settings", vec2(0., 100.), FuncTyp::Context(change_context), Some(ContextType::SettingsMenu)),
-                    GameButton::new("Credits", vec2(0., 50.), FuncTyp::Context(change_context), Some(ContextType::CreditsMenu)),
-                    GameButton::new("Quit", vec2(0., 0.), FuncTyp::Simple(quit), None)
+                    GameButton::new("Play", vec2(0., 0.), FuncTyp::Context(change_context), Some(ContextType::GamePlay)),
+                    GameButton::new("Settings", vec2(0., 50.), FuncTyp::Context(change_context), Some(ContextType::SettingsMenu)),
+                    GameButton::new("Credits", vec2(0., 100.), FuncTyp::Context(change_context), Some(ContextType::CreditsMenu)),
+                    GameButton::new("Quit", vec2(0., 150.), FuncTyp::Simple(quit), None)
                 ],
                 context: ContextType::MainMenu
             },
