@@ -90,6 +90,10 @@ impl Menu {
 pub struct Menus {
     main_menu: Menu,
     settings_menu: Menu,
+    config_graphics_menu: Menu,
+    config_audio_menu: Menu,
+    config_controls_menu: Menu,
+    config_general_menu: Menu,
     credits_menu: Menu,
     pause_menu: Menu,
     gameplay: Menu,
@@ -128,9 +132,59 @@ impl Menus {
                 context: ContextType::MainMenu,
             },
             settings_menu: Menu {
-                menu_buttons: vec![GameButton::default()],
+                menu_buttons: vec![
+                    GameButton::new(
+                        "Graphics",
+                        0,
+                        FuncTyp::Context(change_context),
+                        Some(ContextType::SettingsGraphics)
+                    ),
+                    GameButton::new(
+                        "Sound",
+                        1,
+                        FuncTyp::Context(change_context),
+                        Some(ContextType::SettingsAudio)
+                    ),
+                    GameButton::new(
+                        "Controls",
+                        2,
+                        FuncTyp::Context(change_context),
+                        Some(ContextType::SettingsControls),
+                    ),
+                    GameButton::new(
+                        "General",
+                        3,
+                        FuncTyp::Context(change_context),
+                        Some(ContextType::SettingsGeneral)
+                    ),
+                    GameButton::new(
+                        "Back",
+                        4,
+                        FuncTyp::RevContext(revert_context),
+                        None
+                    )
+                ],
                 context: ContextType::SettingsMenu,
             },
+            config_graphics_menu: Menu {
+                menu_buttons: vec![GameButton::default()],
+                context: ContextType::SettingsGraphics,
+            },
+
+            config_audio_menu: Menu {
+                menu_buttons: vec![GameButton::default()],
+                context: ContextType::SettingsAudio
+            },
+            config_controls_menu: Menu {
+                menu_buttons: vec![GameButton::default()],
+                context: ContextType::SettingsControls,
+            },
+
+            config_general_menu: Menu {
+                menu_buttons: vec![GameButton::default()],
+                context: ContextType::SettingsGeneral,
+            },
+
             credits_menu: Menu {
                 menu_buttons: vec![GameButton::default()],
                 context: ContextType::CreditsMenu,
@@ -174,6 +228,14 @@ impl Menus {
             updated_context = self.main_menu.update(Some(context), font);
         } else if context.curr_context == ContextType::SettingsMenu {
             updated_context = self.settings_menu.update(Some(context), font);
+        } else if context.curr_context == ContextType::SettingsGraphics {
+            updated_context = self.config_graphics_menu.update(Some(context), font)
+        } else if context.curr_context == ContextType::SettingsAudio {
+            updated_context = self.config_audio_menu.update(Some(context), font)
+        } else if context.curr_context == ContextType::SettingsControls {
+            updated_context = self.config_controls_menu.update(Some(context), font)
+        } else if context.curr_context == ContextType::SettingsGeneral {
+            updated_context = self.config_general_menu.update(Some(context), font)
         } else if context.curr_context == ContextType::CreditsMenu {
             updated_context = self.credits_menu.update(Some(context), font)
         } else if context.curr_context == ContextType::PauseMenu {

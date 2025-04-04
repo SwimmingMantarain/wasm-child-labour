@@ -3,6 +3,10 @@
 pub enum ContextType {
     MainMenu,
     SettingsMenu,
+    SettingsGraphics,
+    SettingsAudio,
+    SettingsControls,
+    SettingsGeneral,
     CreditsMenu,
     PauseMenu,
     GamePlay,
