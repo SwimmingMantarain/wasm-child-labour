@@ -5,7 +5,7 @@ pub enum ContextType {
     SettingsMenu,
     CreditsMenu,
     PauseMenu,
-    GamePlay
+    GamePlay,
 }
 
 #[derive(Clone, Copy)]
@@ -18,7 +18,7 @@ impl ContextWindow {
     pub fn new() -> ContextWindow {
         ContextWindow {
             curr_context: ContextType::MainMenu,
-            prev_context: ContextType::MainMenu
+            prev_context: ContextType::MainMenu,
         }
     }
 
@@ -31,6 +31,5 @@ impl ContextWindow {
         let curr = self.curr_context;
         self.curr_context = self.prev_context;
         self.prev_context = curr;
-
     }
 }

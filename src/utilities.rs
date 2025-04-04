@@ -8,9 +8,9 @@ pub fn quit() {
 // Helper enum for using function in GameButton structs
 #[derive(Clone, Copy)]
 pub enum FuncTyp {
-    Simple(fn ()),
-    Context(fn (ContextWindow, ContextType) -> ContextWindow),
-    RevContext(fn (ContextWindow) -> ContextWindow)
+    Simple(fn()),
+    Context(fn(ContextWindow, ContextType) -> ContextWindow),
+    RevContext(fn(ContextWindow) -> ContextWindow),
 }
 
 // Empty function for black magic purposes
