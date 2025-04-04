@@ -7,7 +7,7 @@ use crate::utilities::*;
 #[derive(Clone)]
 struct GameButton {
     text: &'static str,
-    pos: Vec2,
+    order: u64,
     action: FuncTyp,
     context_action: Option<ContextType>,
 }
@@ -16,7 +16,7 @@ impl GameButton {
     fn default() -> GameButton {
         GameButton {
             text: "Back",
-            pos: vec2(0., 0.),
+            order: 0,
             action: FuncTyp::RevContext(revert_context),
             context_action: None,
         }
@@ -24,13 +24,13 @@ impl GameButton {
 
     fn new(
         text: &'static str,
-        pos: Vec2,
+        order: u64,
         action: FuncTyp,
         context_action: Option<ContextType>,
     ) -> GameButton {
         GameButton {
             text: text,
-            pos: pos,
+            order: order,
             action: action,
             context_action: context_action,
         }
@@ -57,14 +57,17 @@ impl Menu {
             // Alignment black magic
 
             let button_center = get_text_center(menu_button.text, font, 90, 1., 0.);
+            let button_dim = measure_text(menu_button.text, font, 90, 1.);
             let button_adjusted_pos = vec2(
                 screen_width() / 2. - button_center.x,
-                screen_height() / 2. - button_center.y + menu_button.pos.y,
+                screen_height() / 2. - button_center.y + (button_dim.height * menu_button.order as f32),
             );
 
-            if widgets::Button::new(menu_button.text) /*.size()*/
+            if widgets::Button::new(menu_button.text)
                 .position(button_adjusted_pos)
                 .ui(&mut root_ui())
+                // TODO: add selection with keyboard using:
+                // TODO: .selected(true/false)
             {
                 match menu_button.action {
                     FuncTyp::Simple(func) => func(),
@@ -99,23 +102,28 @@ impl Menus {
                 menu_buttons: vec![
                     GameButton::new(
                         "Play",
-                        vec2(0., 0.),
+                       0,
                         FuncTyp::Context(change_context),
                         Some(ContextType::GamePlay),
                     ),
                     GameButton::new(
                         "Settings",
-                        vec2(0., 50.),
+                        1,
                         FuncTyp::Context(change_context),
                         Some(ContextType::SettingsMenu),
                     ),
                     GameButton::new(
                         "Credits",
-                        vec2(0., 100.),
+                        2,
                         FuncTyp::Context(change_context),
                         Some(ContextType::CreditsMenu),
                     ),
-                    GameButton::new("Quit", vec2(0., 150.), FuncTyp::Simple(quit), None),
+                    GameButton::new(
+                        "Quit",
+                        3,
+                        FuncTyp::Simple(quit),
+                        None
+                    ),
                 ],
                 context: ContextType::MainMenu,
             },
